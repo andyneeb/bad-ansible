@@ -4,22 +4,18 @@
   become: true
 
   tasks:
-    - template:
-      src: ./open_three-tier-app.repo  dest: /etc/yum.repos.d/open_three-tier-app.repo mode: 0644
+    - template: src: ./open_three-tier-app.repo dest: /etc/yum.repos.d/open_three-tier-app.repo mode: 0644
 
 - hosts: frontends
   gather_facts: false # remove later! speeds up testing
   become: true
 
   tasks:
-  - package:
-      name: httpie
-      state: latest
+  - package: name: httpd state: latest
   - yum: name=haproxy state=latest
   - service: name: haproxy state: started
   - template: src: ./haproxy.cfg.j2 dest: /etc/haproxy/haproxy.cfg
   - service: name: haproxy state: restarted
-
 
 - hosts: apps
   gather_facts: false
@@ -31,14 +27,9 @@
 
   - file: path: /usr/share/tomcat/webapps/ROOT state: directory
 
-  - template:
-      src: index.html.j2
-      dest: /usr/share/tomcat/webapps/ROOT/index.html
-      mode: 0644
+  - template: src: index.html.j2 dest: /usr/share/tomcat/webapps/ROOT/index.html mode: 0644
 
-  - service:
-      name: tomcat
-      state: started
+  - service: name: tomcat state: started
 
 - name: index.html on app 1
   hosts: app1
